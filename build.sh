@@ -92,6 +92,8 @@ if [[ "$build_overclock" == "y" ]]; then
     cp -f /home/$USER/kernel_out/build_92/Image $DRIVE/boot/Image
     cp -f /home/$USER/kernel_out/build_92/zImage $DRIVE/boot/zImage
     cp -f /home/$USER/kernel_out/build_92/dts/. $DRIVE/boot/
+    # DTB directory has only one file per default: /boot/dtb/kernel_tegra210-p3448-0000-p3449-0000-b00.dtb
+    # REthink if this step is neccessary
     cp -f /home/$USER/kernel_out/build_92/dts/. $DRIVE/boot/dtb/
     cp -fr /home/$USER/kernel_out/modules_92/lib/firmware/. $DRIVE/lib/firmware/
     cp -fr /home/$USER/kernel_out/modules_92/lib/modules/. $DRIVE/lib/modules/
