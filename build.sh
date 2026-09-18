@@ -42,6 +42,9 @@ else
 fi
 echo "All good. Proceding to build script."
 
+echo "NOTICE: The following image will be built with a 4GB swapfile.\n If you don't want this, take the time to comment out the line in `/jetson-nano-image/Containerfile.rootfs.20_04`"
+read -rsn1 -p "When you are ready press any key to procede with the build."
+
 echo "Building rootfs"
 cd ../jetson-nano-image && just build-jetson-rootfs 20.04
 
