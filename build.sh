@@ -123,9 +123,11 @@ if [[ "$boot" == "y" ]]; then
     echo "Changing kernel parameters to boot from $DRIVE"
     PARTUUID="$(blkid $DRIVE | grep -oP 'PARTUUID="\K[^"]+')"
     sudo sed -i 's/APPEND ${cbootargs}/APPEND ${cbootargs} root=PARTUUID='$PARTUUID' rw rootwait rootfstype=ext4 zswap.enabled=1 zswap.compressor=lzo zswap.max_pool_percent=25 console=ttyS0,115200n8 console=tty0 fbcon=map:0 net.ifnames=0/g' $DRIVE/boot/extlinux/extlinux.conf
+else
+    sudo sed -i 's/APPEND ${cbootargs}/APPEND ${cbootargs} root=/dev/mmcblk0p1 rw rootwait rootfstype=ext4 zswap.enabled=1 zswap.compressor=lzo zswap.max_pool_percent=25 console=ttyS0,115200n8 console=tty0 fbcon=map:0 net.ifnames=0/g' $DRIVE/boot/extlinux/extlinux.conf
 fi
 
-# TODO
+# TODO:
 cd ..
 git clone --depth=1 https://github.com/MilanTodorovic/jetson-nano-media-server
 cd jetson-nano-media-server
