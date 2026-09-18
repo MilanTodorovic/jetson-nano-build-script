@@ -42,7 +42,20 @@ else
 fi
 echo "All good. Proceding to build script."
 
-echo "NOTICE: The following image will be built with a 4GB swapfile and with ZRAM disabled (will use ZSWAP in the boot agruments; look further bellow in the script file).\n If you don't want this, take the time to comment out the line in `/jetson-nano-image/Containerfile.rootfs.20_04`"
+echo "NOTICE: The following image will be built with a 4GB swapfile and with ZRAM disabled.\n If you don't want this, take the time to comment out the line in `/jetson-nano-image/Containerfile.rootfs.20_04`"
+echo "If you would like to procede with ZSWAP, you need to build it into the kernel manually."
+echo "Consult https://www.sevarg.net/2019/04/14/nvidia-jetson-nano-desktop-use-kernel-builds/ for details."
+echo "tegra21x_xusb_firmware is already in the `firmware` directory."
+echo "In short, do the following:"
+echo "cd ~/kernel/kernel-4.9"
+echo "sudo apt-get install libncurses5-dev (dependency for `menuconfig`)"
+echo "make menuconfig"
+echo "Enable the follwoing things:"
+echo "1) Enable frontswap to cache swap pages if tmem is present\n2) Compressed cache for swap pages (EXPERIMENTAL) (NEW)\n3) Low (Up to 2x) density storage for compressed pages"
+echo "Make sure there is a * and not an M (M means as a module)."
+echo "Exit out, and go to Device Drivers -> Generic Driver Options\nTap down to “External firmware blobs to build into the kernel binary,” hit enter, and enter “tegra21x_xusb_firmware” in the field.\n
+Exit out, and save the new config."
+echo ""
 read -rsn 1 -p "When you are ready press any key to procede with the build."
 
 echo "Building rootfs"
@@ -88,8 +101,11 @@ if [[ "$build_overclock" == "y" ]]; then
     tar -xJf gcc-9.2.tar.xz
     rm gcc-9.2.tar.xz
 
+    echo "Enabling ZSWAP and its dependencies"
+    
+
     echo "Building jetson_nano_overclock"
-    cd jetson-nano-overclock && ./build.sh
+    cd jetson-nano-overclock && ./nvbuild.sh
 
     echo "Copying kernel and modules to drive"
     cp -f /home/$USER/kernel_out/build_92/Image $DRIVE/boot/Image
