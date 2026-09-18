@@ -34,7 +34,7 @@ then
         if ! dpkg -s just &> /dev/null
         then
             echo "    Package `just` not found in apt or snap. Press any key to exit."
-            read -n 1 -s -r
+            read -rsn 1
         fi
     fi
 else
@@ -42,8 +42,8 @@ else
 fi
 echo "All good. Proceding to build script."
 
-echo "NOTICE: The following image will be built with a 4GB swapfile.\n If you don't want this, take the time to comment out the line in `/jetson-nano-image/Containerfile.rootfs.20_04`"
-read -rsn1 -p "When you are ready press any key to procede with the build."
+echo "NOTICE: The following image will be built with a 4GB swapfile and with ZRAM disabled (will use ZSWAP in the boot agruments; look further bellow in the script file).\n If you don't want this, take the time to comment out the line in `/jetson-nano-image/Containerfile.rootfs.20_04`"
+read -rsn 1 -p "When you are ready press any key to procede with the build."
 
 echo "Building rootfs"
 cd ../jetson-nano-image && just build-jetson-rootfs 20.04
@@ -75,7 +75,7 @@ if [[ "$build_overclock" == "y" ]]; then
     echo "There are two branches available: jetpack32.7.6 and Overclock-extreme."
     echo "jetpack32.7.6 offers 2GHz on the CPU, 1GHz on the GPU and 844MHz on the NVDEC. PSU suggestion 5v 4a."
     echo "Overclock-extreme offers 2.2GHz on the CPU, 1.15GHz on the GPU and 844MHz on the NVDEC. PSU suggestion 5v 5a."
-    read -p "Choose a branch: (jetpack32.7.6/Overclock-extreme) [default=jetpack32.7.6]: " branch
+    read -p "Choose a branch: (jetpack32.7.6 or Overclock-extreme) [default=jetpack32.7.6]: " branch
     BRANCH=${branch:-jetpack32.7.6}
     echo "Cloning jetson-nano-overclock"
 
@@ -106,7 +106,7 @@ read -p "If you installed the image on an external drive, would you like to add 
 if [[ "$boot" == "y" ]]; then
     echo "Changing kernel parameters to boot from $DRIVE"
     PARTUUID="$(blkid $DRIVE | grep -oP 'PARTUUID="\K[^"]+')"
-    sudo sed -i 's/APPEND ${cbootargs}/APPEND ${cbootargs} root=PARTUUID=$PARTUUID rw rootwait rootfstype=ext4 console=ttyS0,115200n8 console=tty0 fbcon=map:0 net.ifnames=0/g' $DRIVE/boot/extlinux/extlinux.conf
+    sudo sed -i 's/APPEND ${cbootargs}/APPEND ${cbootargs} root=PARTUUID='$PARTUUID' rw rootwait rootfstype=ext4 zswap.enabled=1 zswap.compressor=lzo zswap.max_pool_percent=25 console=ttyS0,115200n8 console=tty0 fbcon=map:0 net.ifnames=0/g' $DRIVE/boot/extlinux/extlinux.conf
 fi
 
 # TODO
